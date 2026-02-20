@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Course Recommendation System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 50px;
+        }
+        .form-container {
+            max-width: 700px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+        }
+        label {
+            font-weight: bold;
+        }
+        select {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0 20px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        input[type="submit"] {
+            width: 100%;
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+        table {
+            width: 100%;
+            margin-top: 30px;
+            border-collapse: collapse;
+        }
+        table th, table td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+        table th {
+            background-color: #f2f2f2;
+        }
+        h2, .subtitle {
+            text-align: center;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 20px;
+        }
+    </style>
+
+    <script>
+        const branchOptions = {
+            "MBA": ["Finance", "Marketing", "Operations", "IT Management"],
+            "B.Tech": ["CSE", "ECE", "Mechanical", "Civil", "Electrical", "IT"],
+            "BBA": ["Finance", "Marketing", "Operations"],
+            "Law": ["Criminal Law", "Corporate Law", "Constitutional Law", "International Law"],
+            "Medical": ["MBBS", "BDS", "Nursing", "Pharmacy"]
+        };
+
+        function updateBranches(selectedBranch = null) {
+            const degreeSelect = document.getElementById("degree");
+            const branchSelect = document.getElementById("branch");
+            const selectedDegree = degreeSelect.value;
+
+            branchSelect.innerHTML = "";
+
+            branchOptions[selectedDegree].forEach(branch => {
+                const option = document.createElement("option");
+                option.value = branch;
+                option.text = branch;
+
+                if (branch === selectedBranch) {
+                    option.selected = true;
+                }
+
+                branchSelect.appendChild(option);
+            });
+        }
+
+        window.onload = function () {
+        const selectedDegree = "{{ selected_degree | default('MBA') }}";
+        const selectedBranch = "{{ selected_branch | default('') }}";
+
+        const degreeSelect = document.getElementById("degree");
+        degreeSelect.value = selectedDegree;
+
+        updateBranches(selectedBranch);
+    };
+    </script>
+</head>
+
+<body>
+
+<div class="form-container">
+    <h2>Hybrid E-learning Course Recommendation System</h2>
+    <p class="subtitle">Hybrid Blend of Content and Collaborative Based Recommendation</p>
+
+    <form action="/predict" method="post">
+
+        <label for="degree">Select Your Course (Degree)</label>
+        <select name="degree" id="degree" onchange="updateBranches()" required>
+            <option value="MBA" {{ "selected" if selected_degree == "MBA" }}>MBA</option>
+            <option value="B.Tech" {{ "selected" if selected_degree == "B.Tech" }}>B.Tech</option>
+            <option value="BBA" {{ "selected" if selected_degree == "BBA" }}>BBA</option>
+            <option value="Law" {{ "selected" if selected_degree == "Law" }}>Law</option>
+            <option value="Medical" {{ "selected" if selected_degree == "Medical" }}>Medical</option>
+        </select>
+
+        <label for="branch">Select Your Branch</label>
+        <select name="branch" id="branch" required></select>
+
+        <input type="submit" value="Get Recommended Courses">
+    </form>
+
+    {% if recommendations %}
+    <table>
+        <thead>
+            <tr>
+                <th>Course</th>
+                <th>Branch</th>
+                <th>Predicted Rating</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for rec in recommendations %}
+            <tr>
+                <td>{{ rec.Course }}</td>
+                <td>{{ rec.Branch }}</td>
+                <td>{{ rec["Predicted Rating"] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+</div>
+
+</body>
+</html>
